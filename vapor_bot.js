@@ -102,8 +102,9 @@ commands = {    // List of all implemented commands
 							var datax = data;
 							msg.channel.send({
 								embed: {
+									title: "Informations about the next SpaceX mission :",
 									color: '1778CC',
-									description: "Informations about the next SpaceX mission :",
+									description: "",
 									"thumbnail": {
 										"url": datax.links.mission_patch_small
 									  },
@@ -127,15 +128,20 @@ commands = {    // List of all implemented commands
 									]
 								}
 							});
+							//msg.channel.send("If you want to see upcoming missions, try " + Config.commandPrefix + "`spacex uplaunches`.");
 							console.log(data);
 						});
-					} else if (args[0] == 'info') {
+					} else if (args[0] == 'info' || args[0] == 'infos' || args[0] == 'information' || args[0] == 'informations') {
 						SpaceXApiWrapper.info().then(function(data) {
 							var datax = data;
 							msg.channel.send({
 								embed: {
+									title: "Informations about SpaceX :",
 									color: '1778CC',
-									description: "Informations about SpaceX :",
+									description: datax.summary,
+									"thumbnail": {
+										"url": "http://seekvectorlogo.com/wp-content/uploads/2017/12/spacex-vector-logo-small.png"
+									},
 									"fields": [
 										{
 											"name": "Name : ",
@@ -146,20 +152,12 @@ commands = {    // List of all implemented commands
 											"value": datax.founder
 										},
 										{
-											"name": "Founded In :",
-											"value": datax.founded
-										},
-										{
 											"name": "Number of employees :",
 											"value": datax.employees
 										},
 										{
-											"name": "Launch Sites :",
-											"value": datax.launch_sites
-										},
-										{
-											"name": "Test Sites :",
-											"value": datax.test_sites
+											"name": "Launch Sites / Test Sites :",
+											"value": datax.launch_sites + ' / ' + datax.test_sites
 										},
 										{
 											"name": "CEO :",
@@ -171,7 +169,54 @@ commands = {    // List of all implemented commands
 										},
 										{
 											"name": "Links :",
-											"value": 'Website :' + datax.links.website + '\nTwitter :' + datax.links.twitter
+											"value": 'Website : ' + datax.links.website + '\nTwitter : ' + datax.links.twitter
+										}
+									]
+								}
+							});
+							console.log(data);
+						});
+					} else if ((args[0] == 'mission' || args[0] == 'latest' || args[0] == 'current') && !args[1]) {
+						SpaceXApiWrapper.getLatestLaunch().then(function(data) {
+							var datax = data;
+							if (data.launch_success) {
+								if (data.launch_success == true)
+									var success = 'Success';
+								else	
+									var success = 'Failure';
+							}
+							msg.channel.send({
+								embed: {
+									title: 'Current / Latest SpaceX Mission :',
+									color: '1778CC',
+									description: "",
+									"thumbnail": {
+										"url": datax.links.mission_patch_small
+									  },
+									"fields": [
+										{
+											"name": "Mission Name : ",
+											"value": datax.mission_name
+										},
+										{
+											"name": "UTC Launch Date : ",
+											"value": datax.launch_date_utc
+										},
+										{
+											"name": "Rocket Used :",
+											"value": datax.rocket.rocket_name
+										},
+										{
+											"name": "Launch Site :",
+											"value": datax.launch_site.site_name_long
+										},
+										{
+											"name": "Launch State :",
+											"value": success
+										},
+										{
+											"name": "Details :",
+											"value": datax.details
 										}
 									]
 								}
