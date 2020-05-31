@@ -1,4 +1,4 @@
 auth.json
-nodes-modules/
+node_modules/
 permissions.json
 .vs/
