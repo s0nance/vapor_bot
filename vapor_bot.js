@@ -73,6 +73,8 @@ try {
 
 var SpaceXApiWrapper = require("spacex-api-wrapper");
 
+// Load jquery
+
 commands = {    // List of all implemented commands
         "ping": {
             description: "Responds pong; useful for checking if bot is alive.",
@@ -222,6 +224,53 @@ commands = {    // List of all implemented commands
 								}
 							});
 							console.log(data);
+						});
+					} else if (args[0] == 'cores') {
+						SpaceXApiWrapper.getAllCores().then(function(data) {
+							if (args[1] == 'list') {
+								var datax = data;
+								var offset = 0;
+								var limit = 5;
+								var counter = 1;
+								let embed = new Discord.MessageEmbed()
+									.setColor("1778CC")
+									.setTitle("SpaceX Cores List #" + counter + ':')
+								for (; datax[offset]; offset += 1) {
+									for (; offset != limit; offset += 1) {
+										embed.addField("__**Core Serial Name :**__", '**' + datax[offset].core_serial + '**');
+										embed.addField("UTC Original Launch Date :", datax[offset].original_launch);
+										embed.addField("*Details :*", datax[offset].details);
+									}
+									if (offset == limit) {
+										limit += 5;
+										counter += 1;
+										msg.author.send(embed);
+										embed = new Discord.MessageEmbed()
+											.setColor("1778CC")
+											.setTitle("SpaceX Cores List #" + counter + ':')
+										}
+									}
+							} else {
+								var datax = data;
+								var offset = 0;
+								var limit = 5;
+								var counter = 1;
+								let embed = new Discord.MessageEmbed()
+									.setColor("1778CC")
+									.setTitle("SpaceX Cores List #" + counter + ':')
+								for (; datax[offset]; offset += 1) {
+									for (; offset != limit; offset += 1) {
+										embed.addField("__**Core Serial Name :**__", '**' + datax[offset].core_serial + '**');
+										embed.addField("UTC Original Launch Date :", datax[offset].original_launch);
+										embed.addField("*Details :*", datax[offset].details);
+									}
+									if (offset == limit) {
+										msg.channel.send(embed);
+										break;
+									}
+								}
+								msg.channel.send("Try adding `list` as argument to receive full SpaceX cores lists.");
+							}
 						});
 					} else if (args[0] == 'live') {
 						msg.channel.send("Watch the SpaceX live here : \nhttps://www.youtube.com/watch?v=bIZsnKGV8TE");
