@@ -69,15 +69,19 @@ try {
     Config.commandPrefix = '!';
 }
 
+// Load SpaceX API wrapper
+
+var SpaceXApiWrapper = require("spacex-api-wrapper");
+
 commands = {    // List of all implemented commands
         "ping": {
-                description: "Responds pong; useful for checking if bot is alive.",
-                process: function(bot, msg, suffix) {
-                    msg.channel.send( msg.member.user.tag+" pong!");
-                    if (suffix){
-                        msg.channel.send( "No need to add arguments ! I'm alive you know..");
-                    }
+            description: "Responds pong; useful for checking if bot is alive.",
+            process: function(bot, msg, suffix) {
+                msg.channel.send( msg.member.user.tag+" pong!");
+                if (suffix){
+                    msg.channel.send( "No need to add arguments ! I'm alive you know..");
                 }
+            }
         },
         "multiply": {
             description: "Multiply two numbers, taken as arguments.",
@@ -89,8 +93,100 @@ commands = {    // List of all implemented commands
         "spacex": {
             description: "Give a link of the current Space X channel live.",
             process: function(bot, msg, suffix) {
-                msg.channel.send("Watch the SpaceX live here : https://www.youtube.com/watch?v=bIZsnKGV8TE !!");
-            }
+				if (!suffix) {
+					msg.channel.send( "You have to put an argument ! Try `!spacex nextlaunch` for example.");
+				} else {
+					var args = suffix.split(' ');
+					if (args[0] == 'nextlaunch' || args[0] == 'next_launch') {
+						SpaceXApiWrapper.getNextLaunch().then(function(data) {
+							var datax = data;
+							msg.channel.send({
+								embed: {
+									color: '1778CC',
+									description: "Informations about the next SpaceX mission :",
+									"thumbnail": {
+										"url": datax.links.mission_patch_small
+									  },
+									"fields": [
+										{
+											"name": "Mission Name : ",
+											"value": datax.mission_name
+										},
+										{
+											"name": "UTC Launch Date : ",
+											"value": datax.launch_date_utc
+										},
+										{
+											"name": "Rocket Used :",
+											"value": datax.rocket.rocket_name
+										},
+										{
+											"name": "Launch Site :",
+											"value": datax.launch_site.site_name_long
+										}
+									]
+								}
+							});
+							console.log(data);
+						});
+					} else if (args[0] == 'info') {
+						SpaceXApiWrapper.info().then(function(data) {
+							var datax = data;
+							msg.channel.send({
+								embed: {
+									color: '1778CC',
+									description: "Informations about SpaceX :",
+									"fields": [
+										{
+											"name": "Name : ",
+											"value": datax.name
+										},
+										{
+											"name": "Founder : ",
+											"value": datax.founder
+										},
+										{
+											"name": "Founded In :",
+											"value": datax.founded
+										},
+										{
+											"name": "Number of employees :",
+											"value": datax.employees
+										},
+										{
+											"name": "Launch Sites :",
+											"value": datax.launch_sites
+										},
+										{
+											"name": "Test Sites :",
+											"value": datax.test_sites
+										},
+										{
+											"name": "CEO :",
+											"value": datax.ceo
+										},
+										{
+											"name": "Valuation (in US dollars) :",
+											"value": datax.valuation
+										},
+										{
+											"name": "Links :",
+											"value": 'Website :' + datax.links.website + '\nTwitter :' + datax.links.twitter
+										}
+									]
+								}
+							});
+							console.log(data);
+						});
+					} else if (args[0] == 'live') {
+						msg.channel.send("Watch the SpaceX live here : \nhttps://www.youtube.com/watch?v=bIZsnKGV8TE");
+					} else {
+						msg.channel.send("Invalid argmuments.");
+					}
+				}
+			}
+			// IN PROGRESS 
+			// GOAL : Implement Youtube API to verify if SpaceX channel is on live or not, and SpaceX API to give informations about missions and countdowwns.
         }
 }
 var bot = new Discord.Client();
