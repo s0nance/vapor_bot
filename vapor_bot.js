@@ -24,7 +24,7 @@ try {
 }
 
 // Load custom permissions
-var dangerousCommands = ["eval","pullanddeploy","setUsername","cmdauth"]; // set array if dangerous commands
+
 var Permissions = {};
 try{
 	Permissions = require("./permissions.json");
@@ -33,12 +33,6 @@ try{
 	Permissions.users = {};
 }
 
-for( var i=0; i<dangerousCommands.length;i++ ){
-	var cmd = dangerousCommands[i];
-	if(!Permissions.global.hasOwnProperty(cmd)){
-		Permissions.global[cmd] = false;
-	}
-}
 Permissions.checkPermission = function (userid,permission){
 	//var usn = user.username + "#" + user.discriminator;
 	//console.log("Checking " + permission + " permission for " + usn);
@@ -75,9 +69,6 @@ try {
     Config.commandPrefix = '!';
 }
 
-var messagebox;
-var aliases;
-
 commands = {    // List of all implemented commands
         "ping": {
                 description: "Responds pong; useful for checking if bot is alive.",
@@ -103,10 +94,6 @@ commands = {    // List of all implemented commands
         }
 }
 var bot = new Discord.Client();
-
-var hooks = {
-        onMessage: []
-}
 
 bot.on("ready", function () {
     console.log("Connected as " + bot.user.tag)
