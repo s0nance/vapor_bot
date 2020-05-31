@@ -84,7 +84,15 @@ commands = {    // List of all implemented commands
                     msg.channel.send( "No need to add arguments ! I'm alive you know..");
                 }
             }
-        },
+		},
+		"cosmic": {
+			description: "I can't tell you what you are supposed to know.",
+			process: function(bot, msg, suffix) {
+				if (!suffix) {
+					msg.channel.send("Hey! Really good choice..." + "https://cosmiccycler.bandcamp.com/");
+				}
+			}
+		},
         "multiply": {
             description: "Multiply two numbers, taken as arguments.",
             process: function(bot, msg, suffix) {
@@ -93,13 +101,13 @@ commands = {    // List of all implemented commands
             }
         },
         "spacex": {
-            description: "Give a link of the current Space X channel live.",
+            description: "Interact with SpaceX database, a lot of commands here. To display them, try " + Config.commandPrefix + "`spacex help`",
             process: function(bot, msg, suffix) {
 				if (!suffix) {
-					msg.channel.send( "You have to put an argument ! Try `!spacex nextlaunch` for example.");
+					msg.channel.send( "You have to put an argument ! Try `!spacex nextlaunch` for example. \nTo receive the list of `spacex` commands, write " + Config.commandPrefix + "`spacex help`");
 				} else {
 					var args = suffix.split(' ');
-					if (args[0] == 'nextlaunch' || args[0] == 'next_launch') {
+					if ((args[0] == 'nextlaunch' || args[0] == 'next_launch') & !args[1]) {
 						SpaceXApiWrapper.getNextLaunch().then(function(data) {
 							var datax = data;
 							msg.channel.send({
@@ -130,7 +138,7 @@ commands = {    // List of all implemented commands
 									]
 								}
 							});
-							//msg.channel.send("If you want to see upcoming missions, try " + Config.commandPrefix + "`spacex uplaunches`.");
+							//msg.channel.send("If you want to see upcoming missions, try " + Config.commandPrefix + "`spacex uplaunches`."); // WORTH IT ?
 							console.log(data);
 						});
 					} else if (args[0] == 'info' || args[0] == 'infos' || args[0] == 'information' || args[0] == 'informations') {
@@ -235,13 +243,13 @@ commands = {    // List of all implemented commands
 								let embed = new Discord.MessageEmbed()
 									.setColor("1778CC")
 									.setTitle("SpaceX Cores List #" + counter + ':')
-								for (; datax[offset]; offset += 1) {
+								for (; datax[offset]; offset += 1) { // Loop parsing the cores json
 									for (; offset != limit; offset += 1) {
 										embed.addField("__**Core Serial Name :**__", '**' + datax[offset].core_serial + '**');
 										embed.addField("UTC Original Launch Date :", datax[offset].original_launch);
 										embed.addField("*Details :*", datax[offset].details);
 									}
-									if (offset == limit) {
+									if (offset == limit) { // Limit is the number of cores displayed on the embed. Embed max chars are 6000 and 256 per lign.
 										limit += 5;
 										counter += 1;
 										msg.author.send(embed);
@@ -275,7 +283,7 @@ commands = {    // List of all implemented commands
 					} else if (args[0] == 'live') {
 						msg.channel.send("Watch the SpaceX live here : \nhttps://www.youtube.com/watch?v=bIZsnKGV8TE");
 					} else {
-						msg.channel.send("Invalid argmuments.");
+						msg.channel.send("Invalid argmument(s).");
 					}
 				}
 			}
@@ -287,12 +295,16 @@ var bot = new Discord.Client();
 
 bot.on("ready", function () {
     console.log("Connected as " + bot.user.tag)
-    console.log("Write "+Config.commandPrefix+"help on Discord chat area to display the command list.");
-    bot.user.setPresence({
-            game: {
-                name: Config.commandPrefix+"help | "+ bot.guilds.name +" Servers"
-            }
-    });
+	console.log("Write "+Config.commandPrefix+"help on Discord chat area to display the command list.");
+	bot.user.setPresence({ status: 'Online' })
+  	.then(console.log)
+	.catch(console.error);
+
+	// Set the bot user's activity
+
+	bot.user.setActivity('Cosmic Cycler', { type: 2 })
+	.then(presence => console.log(`Activity set to ${presence.activities[0].name}`))
+	.catch(console.error);
 });
 
 bot.on("message", (msg) => {
