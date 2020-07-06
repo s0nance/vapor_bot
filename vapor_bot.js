@@ -89,7 +89,7 @@ commands = {    // List of all implemented commands
 			description: "I can't tell you what you are supposed to know.",
 			process: function(bot, msg, suffix) {
 				if (!suffix) {
-					msg.channel.send("Hey! Really good choice..." + "https://cosmiccycler.bandcamp.com/");
+					msg.channel.send("Hey! Really good choice... " + "https://cosmiccycler.bandcamp.com/");
 				}
 			}
 		},
