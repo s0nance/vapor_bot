@@ -449,9 +449,9 @@ function multiplyCommand(arguments, receivedMessage) {
     receivedMessage.channel.send("The product of " + arguments + " multiplied together is: " + product.toString())
 }
 
-if(AuthDetails.bot_token){
+if(AuthDetails.BOT_TOKEN){
 	console.log("logging in with token");
-	bot.login(AuthDetails.bot_token);
+	bot.login(AuthDetails.BOT_TOKEN);
 } else {
 	console.log("Logging in with user credentials is no longer supported!\nYou can use token based log in with a user account; see\nhttps://discord.js.org/#/docs/main/master/general/updating.");
 }
