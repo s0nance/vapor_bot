@@ -1,0 +1,27 @@
+{
+  "name": "vapor_bot",
+  "version": "0.0.2",
+  "description": "A discord bot I made in about 1 week.\r It integrates the SpaceX API, you can see useful informations about SpaceX mission in your own server.\r Test it out, and enjoy.",
+  "main": "vapor_bot.js",
+  "dependencies": {
+    "discord.js": "^14.9.0",
+    "dotenv": "^16.3.1",
+    "module-alias": "^2.2.3",
+    "spacex-api": "^1.0.2"
+  },
+  "engines": {
+    "node": ">=18.14.11"
+  },
+  "scripts": {
+    "dev": "nodemon .",
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "mariuscontoli",
+  "license": "ISC",
+  "_moduleAliases": {
+    "@root": ".",
+    "@src": "src/",
+    "@structures": "src/structures"
+  }
+}

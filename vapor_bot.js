@@ -1,23 +1,29 @@
-var fs = require('fs')
+require("dotenv").config();
+require("module-alias/register");
+
+const { DiscordClient } = require("@src/structures");
+const fs = require("fs");
+
+const client = new DiscordClient();
 
 process.on('unhandledRejection', (reason) => {
     console.error(reason);
     process.exit();
 });
 
+
 try {
-    var Discord = require("discord.js");
 } catch (e){
     console.log(e.stack);
     console.log(process.version);
     process.exit();
 }
-console.log("Executing Vapor Bot\nNode version: " + process.version + "\nDiscord.js version: " + Discord.version);
+console.log("Executing Vapor Bot\nNode version: " + process.version + "\nDiscord.js version: " + client.version);
 
 
+const AuthDetails = require("./auth.json");
 // Get authenticate
 try {
-    var AuthDetails = require("./auth.json");
 } catch (e){
     console.log("Error finding a proper auth.json file.");
     process.exit();
@@ -25,7 +31,7 @@ try {
 
 // Load custom permissions
 
-var Permissions = {};
+let Permissions = {};
 try{
 	Permissions = require("./permissions.json");
 } catch(e){
@@ -59,23 +65,20 @@ fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2), (err) => {
 	if(err) console.error(err);
 });
 
-// Load Config file 
-
-var Config = {}
-try {
-    Config = require("./config.json");
-} catch(e) { // default configuration
-    Config.debug = false;
-    Config.commandPrefix = '!';
-}
-
 // Load SpaceX API wrapper
 
-var SpaceXApiWrapper = require("spacex-api-wrapper");
+const SpaceXApi = require("spacex-api");
+const {Presence} = require("discord.js");
 
 // Load jquery
 
 commands = {    // List of all implemented commands
+		"help": {
+			description: "It seems you need some help",
+			process: function (bot, msg, suffix) {
+				helpCommand(suffix, msg)
+			}
+		},
         "ping": {
             description: "Responds pong; useful for checking if bot is alive.",
             process: function(bot, msg, suffix) {
@@ -101,7 +104,7 @@ commands = {    // List of all implemented commands
             }
         },
         "spacex": {
-            description: "Interact with SpaceX database, a lot of commands here. To display them, try " + Config.commandPrefix + "`spacex help`",
+            description: "Interact with SpaceX database, a lot of commands here. To display them, try  !`spacex help`",
             process: function(bot, msg, suffix) {
 				if (!suffix) {
 					msg.channel.send( "You have to put an argument ! Try `!spacex nextlaunch` for example. \nTo receive the list of `spacex` commands, write " + Config.commandPrefix + "`spacex help`");
@@ -291,23 +294,21 @@ commands = {    // List of all implemented commands
 			// GOAL : Implement Youtube API to verify if SpaceX channel is on live or not, and SpaceX API to give informations about missions and countdowwns.
         }
 }
-var bot = new Discord.Client();
 
-bot.on("ready", function () {
-    console.log("Connected as " + bot.user.tag)
-	console.log("Write "+Config.commandPrefix+"help on Discord chat area to display the command list.");
-	bot.user.setPresence({ status: 'Online' })
-  	.then(console.log)
-	.catch(console.error);
+
+client.on("ready", function () {
+    console.log("Connected as " + client.user.tag)
+	console.log("Write !help on Discord chat area to display the command list.");
+	client.user.setPresence({ status: "online"})
 
 	// Set the bot user's activity
 
-	bot.user.setActivity('Cosmic Cycler', { type: 2 })
-	.then(presence => console.log(`Activity set to ${presence.activities[0].name}`))
-	.catch(console.error);
+	client.user.setActivity('Cosmic Cycler', { type: 2 })
+	// .then(presence => console.log(`Activity set to ${presence.activities[0].name}`))
+	// .catch(console.error);
 });
 
-bot.on("message", (msg) => {
+client.on("message", (msg) => {
 	if(!checkMessageForCommand(msg, false)){
 		for(msgListener of hooks.onMessage){
 			msgListener(msg);
@@ -315,7 +316,7 @@ bot.on("message", (msg) => {
 	}
 });
 
-bot.on("messageUpdate", (oldMessage, newMessage) => {
+client.on("messageUpdate", (oldMessage, newMessage) => {
 	checkMessageForCommand(newMessage,true);
 });
 
@@ -334,14 +335,14 @@ function checkMessageForCommand(msg, isEdit) {
 				return false;
 			}
         }
-		var cmd = commands[cmdTxt];
-        if(cmdTxt === "help"){
+		let cmd = commands[cmdTxt];
+		if(cmdTxt === "help"){
             //help is special since it iterates over the other commands
 			if(suffix){
 				var cmds = suffix.split(" ").filter(function(cmd){return commands[cmd]});
 				var info = "";
 				for(var i=0;i<cmds.length;i++) {
-					var cmd = cmds[i];
+					cmd = cmds[i];
 					info += "**"+Config.commandPrefix + cmd+"**";
 					var usage = commands[cmd].usage;
 					if(usage){
@@ -450,8 +451,8 @@ function multiplyCommand(arguments, receivedMessage) {
 }
 
 if(AuthDetails.BOT_TOKEN){
-	console.log("logging in with token");
-	bot.login(AuthDetails.BOT_TOKEN);
+	console.log("Logging in with token");
+	client.login(AuthDetails.BOT_TOKEN);
 } else {
 	console.log("Logging in with user credentials is no longer supported!\nYou can use token based log in with a user account; see\nhttps://discord.js.org/#/docs/main/master/general/updating.");
 }
