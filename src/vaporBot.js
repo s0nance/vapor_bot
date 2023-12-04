@@ -1,69 +1,50 @@
-require("dotenv").config();
-require("module-alias/register");
-
-const { DiscordClient } = require("@src/structures");
+const Discord = require("discord.js");
 const fs = require("fs");
 
-const client = new DiscordClient();
-
-process.on('unhandledRejection', (reason) => {
-    console.error(reason);
-    process.exit();
+// Discord client
+const client = new Discord.Client({
+	allowedMentions: {
+		parse: ['users', 'roles'],
+		repliedUser: false
+	},
+	autoReconnect: true,
+	disableEvents: ['TYPING_START'],
+	partials: [
+		Discord.Partials.Channel,
+		Discord.Partials.GuildMember,
+		Discord.Partials.Message,
+		Discord.Partials.Reaction,
+		Discord.Partials.User,
+		Discord.Partials.GuildScheduledEvent
+	],
+	intents: [
+		Discord.GatewayIntentBits.Guilds,
+		Discord.GatewayIntentBits.GuildMembers,
+		Discord.GatewayIntentBits.GuildBans,
+		Discord.GatewayIntentBits.GuildEmojisAndStickers,
+		Discord.GatewayIntentBits.GuildIntegrations,
+		Discord.GatewayIntentBits.GuildWebhooks,
+		Discord.GatewayIntentBits.GuildInvites,
+		Discord.GatewayIntentBits.GuildVoiceStates,
+		Discord.GatewayIntentBits.GuildMessages,
+		Discord.GatewayIntentBits.GuildMessageReactions,
+		Discord.GatewayIntentBits.GuildMessageTyping,
+		Discord.GatewayIntentBits.DirectMessages,
+		Discord.GatewayIntentBits.DirectMessageReactions,
+		Discord.GatewayIntentBits.DirectMessageTyping,
+		Discord.GatewayIntentBits.GuildScheduledEvents,
+		Discord.GatewayIntentBits.MessageContent,
+		],
+	restTimeOffset: 0,
 });
 
+// Client settings
+client.config = require("./config/bot");
+client.commands = new Discord.Collection();
 
-try {
-} catch (e){
-    console.log(e.stack);
-    console.log(process.version);
-    process.exit();
-}
+client.login(process.env.BOT_TOKEN);
+
 console.log("Executing Vapor Bot\nNode version: " + process.version + "\nDiscord.js version: " + client.version);
-
-
-const AuthDetails = require("./auth.json");
-// Get authenticate
-try {
-} catch (e){
-    console.log("Error finding a proper auth.json file.");
-    process.exit();
-}
-
-// Load custom permissions
-
-let Permissions = {};
-try{
-	Permissions = require("./permissions.json");
-} catch(e){
-	Permissions.global = {};
-	Permissions.users = {};
-}
-
-Permissions.checkPermission = function (userid,permission){
-	//var usn = user.username + "#" + user.discriminator;
-	//console.log("Checking " + permission + " permission for " + usn);
-	try {
-		var allowed = true;
-		try{
-			if(Permissions.global.hasOwnProperty(permission)){
-				allowed = Permissions.global[permission] === true;
-			}
-		} catch(e){}
-		try{
-			if(Permissions.users[userid].hasOwnProperty("*")){
-				allowed = Permissions.users[userid]["*"] === true;
-			}
-			if(Permissions.users[userid].hasOwnProperty(permission)){
-				allowed = Permissions.users[userid][permission] === true;
-			}
-		} catch(e){}
-		return allowed;
-	} catch(e){}
-	return false;
-}
-fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2), (err) => {
-	if(err) console.error(err);
-});
 
 // Load SpaceX API wrapper
 
@@ -322,14 +303,14 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
 
 function checkMessageForCommand(msg, isEdit) {
 	//check if message is a command
-	if(msg.author.id != bot.user.id && (msg.content.startsWith(Config.commandPrefix))){
+	if(msg.author.id !== client.user.id && (msg.content.startsWith(Config.commandPrefix))){
         console.log("treating " + msg.content + " from " + msg.author + " as command");
 		var cmdTxt = msg.content.split(" ")[0].substring(Config.commandPrefix.length);
         var suffix = msg.content.substring(cmdTxt.length+Config.commandPrefix.length+1);//add one for the ! and one for the space
         if(msg.mentions.has(bot.user)){
 			try {
 				cmdTxt = msg.content.split(" ")[1];
-				suffix = msg.content.substring(bot.user.mention().length+cmdTxt.length+Config.commandPrefix.length+1);
+				suffix = msg.content.substring(client.user.mention().length+cmdTxt.length+Config.commandPrefix.length+1);
 			} catch(e){ //no command
 				//msg.channel.send("Yes?");
 				return false;
@@ -448,11 +429,4 @@ function multiplyCommand(arguments, receivedMessage) {
         product = product * parseFloat(value)
     })
     receivedMessage.channel.send("The product of " + arguments + " multiplied together is: " + product.toString())
-}
-
-if(AuthDetails.BOT_TOKEN){
-	console.log("Logging in with token");
-	client.login(AuthDetails.BOT_TOKEN);
-} else {
-	console.log("Logging in with user credentials is no longer supported!\nYou can use token based log in with a user account; see\nhttps://discord.js.org/#/docs/main/master/general/updating.");
 }

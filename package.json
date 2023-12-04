@@ -2,10 +2,12 @@
   "name": "vapor_bot",
   "version": "0.0.2",
   "description": "A discord bot I made in about 1 week.\r It integrates the SpaceX API, you can see useful informations about SpaceX mission in your own server.\r Test it out, and enjoy.",
-  "main": "vapor_bot.js",
+  "main": "src/index.js",
   "dependencies": {
+    "axios": "^1.6.2",
     "discord.js": "^14.9.0",
     "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "module-alias": "^2.2.3",
     "spacex-api": "^1.0.2"
   },
